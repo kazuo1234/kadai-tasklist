@@ -16,7 +16,17 @@ class WelcomeController extends Controller
      */
     public function index()
     {
-        return view('welcome');
+        $data = [];
+        if (\Auth::check()) {
+        	$user = \Auth::user();
+        	$tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
+
+        	$data = [
+        		'user' => $user,
+		        'tasks' => $tasks,
+	        ];
+        }
+    	return view('welcome', $data);
     }
 
     /**

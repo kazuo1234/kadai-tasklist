@@ -18,7 +18,8 @@ class TasksController extends Controller
      */
     public function index()
     {
-        $tasks = Task::all();
+        $user = \Auth::user();
+    	$tasks = $user->tasks()->orderBy('created_at', 'desc')->paginate(10);
 
         return view('tasks.index', [
             'tasks' => $tasks,
@@ -51,12 +52,17 @@ class TasksController extends Controller
             'status' => 'required',
         ]);
 
-        $task = new Task();
-        $task->status = $request->status;
-        $task->content = $request->content;
-        $task->save();
+	    $request->user()->tasks()->create([
+	    	'status' => $request->status,
+		    'content' => $request->content,
+	    ]);
 
-        return redirect('/');
+	    $user = \Auth::user();
+	    $tasks = $request->user()->tasks()->orderBy('created_at', 'desc')->paginate(10);
+
+	    return view('tasks.index', [
+		    'tasks' => $tasks,
+	    ]);
     }
 
     /**
